@@ -5,6 +5,7 @@ import { Suspense } from "solid-js";
 import "./app.css";
 
 export default function App() {
+  console.log('supabase url:', import.meta.env.VITE_SUPABASE_URL)
   return (
     <Router
       root={props => (
