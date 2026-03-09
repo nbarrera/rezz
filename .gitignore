@@ -1,0 +1,40 @@
+# Dependencies
+node_modules/
+
+# Bun
+bun.lockb
+.bun/
+
+# Build output
+dist/
+dist-ssr/
+
+# Vite
+.vite/
+*.local
+
+# Environment variables — never commit these
+.env
+.env.local
+.env.*.local
+
+# Supabase
+.supabase/
+
+# PWA generated files
+dev-dist/
+public/sw.js
+public/workbox-*.js
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Test coverage
+coverage/
