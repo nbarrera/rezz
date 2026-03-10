@@ -1,4 +1,4 @@
-import { createSignal, For, Show } from "solid-js";
+import { createSignal, Index, Show } from "solid-js";
 import { Button } from "~/components/ui/Button";
 import { Input } from "~/components/ui/Input";
 import { TextArea } from "~/components/ui/TextArea";
@@ -170,20 +170,20 @@ export function RecipeForm(props: RecipeFormProps) {
         <p class="text-sm font-medium text-obsidian">Ingredientes</p>
 
         <div class="flex flex-col gap-2">
-          <For each={state().ingredients}>
+          <Index each={state().ingredients}>
             {(row) => (
               <IngredientRow
-                row={row}
+                row={row()}
                 userId={auth.session()!.user.id}
                 onChange={(patch) =>
-                  dispatch({ type: "UPDATE_INGREDIENT", rowId: row.rowId, patch })
+                  dispatch({ type: "UPDATE_INGREDIENT", rowId: row().rowId, patch })
                 }
                 onRemove={() =>
-                  dispatch({ type: "REMOVE_INGREDIENT", rowId: row.rowId })
+                  dispatch({ type: "REMOVE_INGREDIENT", rowId: row().rowId })
                 }
               />
             )}
-          </For>
+          </Index>
         </div>
 
         <Button

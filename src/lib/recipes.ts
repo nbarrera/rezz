@@ -124,6 +124,22 @@ export async function saveIngredients(
 // Ingredient catalog
 // ---------------------------------------------------------------------------
 
+export async function searchRecipes(
+  userId: string,
+  query: string
+): Promise<{ id: string; name: string }[]> {
+  if (!query.trim()) return [];
+  const { data, error } = await supabase
+    .from("recipes")
+    .select("id, name")
+    .match(getOwnerScope(userId))
+    .ilike("name", `%${query.trim()}%`)
+    .order("name")
+    .limit(8);
+  if (error) throw error;
+  return data ?? [];
+}
+
 export async function searchCatalog(
   userId: string,
   query: string

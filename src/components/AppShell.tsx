@@ -35,12 +35,22 @@ export function AppShell(props: AppShellProps) {
         >
           Recetas
         </A>
-        <span class="flex-1 flex flex-col items-center justify-center py-3 text-xs text-obsidian/25 cursor-not-allowed select-none">
+        <A
+          href="/menu"
+          end={false}
+          class="flex-1 flex flex-col items-center justify-center py-3 text-xs text-obsidian/40 transition"
+          activeClass="text-biscay font-semibold"
+        >
           Menú
-        </span>
-        <span class="flex-1 flex flex-col items-center justify-center py-3 text-xs text-obsidian/25 cursor-not-allowed select-none">
+        </A>
+        <A
+          href="/list"
+          end={false}
+          class="flex-1 flex flex-col items-center justify-center py-3 text-xs text-obsidian/40 transition"
+          activeClass="text-biscay font-semibold"
+        >
           Lista
-        </span>
+        </A>
       </nav>
     </div>
   );

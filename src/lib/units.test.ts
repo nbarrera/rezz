@@ -1,64 +1,61 @@
 import { describe, it, expect } from "vitest";
 import { normalizeToBase, formatQuantity } from "./units";
 
+// ---------------------------------------------------------------------------
+// normalizeToBase
+// ---------------------------------------------------------------------------
+
+type NormalizeCase = {
+  desc: string;
+  qty: number;
+  unit: string;
+  expectedQty: number;
+  expectedUnit: string;
+  closeTo?: boolean;
+};
+
+function doTestNormalize({ qty, unit, expectedQty, expectedUnit, closeTo }: NormalizeCase) {
+  const result = normalizeToBase(qty, unit);
+  expect(result.unit).toBe(expectedUnit);
+  closeTo
+    ? expect(result.quantity).toBeCloseTo(expectedQty)
+    : expect(result.quantity).toBe(expectedQty);
+}
+
+const normalizeCases: NormalizeCase[] = [
+  { desc: "mg → g",             qty: 500,  unit: "mg",    expectedQty: 0.5,   expectedUnit: "g" },
+  { desc: "kg → g",             qty: 2,    unit: "kg",    expectedQty: 2000,  expectedUnit: "g" },
+  { desc: "ml → l",             qty: 500,  unit: "ml",    expectedQty: 0.5,   expectedUnit: "l" },
+  { desc: "cl → l",             qty: 25,   unit: "cl",    expectedQty: 0.25,  expectedUnit: "l" },
+  { desc: "dl → l (float)",     qty: 3,    unit: "dl",    expectedQty: 0.3,   expectedUnit: "l", closeTo: true },
+  { desc: "g passthrough",      qty: 200,  unit: "g",     expectedQty: 200,   expectedUnit: "g" },
+  { desc: "l passthrough",      qty: 1.5,  unit: "l",     expectedQty: 1.5,   expectedUnit: "l" },
+  { desc: "unknown unit as-is", qty: 4,    unit: "pinch", expectedQty: 4,     expectedUnit: "pinch" },
+];
+
 describe("normalizeToBase", () => {
-  it("converts mg to g", () => {
-    expect(normalizeToBase(500, "mg")).toEqual({ quantity: 0.5, unit: "g" });
-  });
-
-  it("converts kg to g", () => {
-    expect(normalizeToBase(2, "kg")).toEqual({ quantity: 2000, unit: "g" });
-  });
-
-  it("converts ml to l", () => {
-    expect(normalizeToBase(500, "ml")).toEqual({ quantity: 0.5, unit: "l" });
-  });
-
-  it("converts cl to l", () => {
-    expect(normalizeToBase(25, "cl")).toEqual({ quantity: 0.25, unit: "l" });
-  });
-
-  it("converts dl to l", () => {
-    const result = normalizeToBase(3, "dl");
-    expect(result.unit).toBe("l");
-    expect(result.quantity).toBeCloseTo(0.3);
-  });
-
-  it("passes through unknown unit as-is", () => {
-    expect(normalizeToBase(4, "pinch")).toEqual({ quantity: 4, unit: "pinch" });
-  });
-
-  it("passes through g unchanged (already base)", () => {
-    expect(normalizeToBase(200, "g")).toEqual({ quantity: 200, unit: "g" });
-  });
-
-  it("passes through l unchanged (already base)", () => {
-    expect(normalizeToBase(1.5, "l")).toEqual({ quantity: 1.5, unit: "l" });
-  });
+  normalizeCases.forEach((c) => it(c.desc, () => doTestNormalize(c)));
 });
 
+// ---------------------------------------------------------------------------
+// formatQuantity
+// ---------------------------------------------------------------------------
+
+type FormatCase = { desc: string; qty: number; unit: string; expected: string };
+
+function doTestFormat({ qty, unit, expected }: FormatCase) {
+  expect(formatQuantity(qty, unit)).toBe(expected);
+}
+
+const formatCases: FormatCase[] = [
+  { desc: "1000g → 1 kg",       qty: 1000, unit: "g",     expected: "1 kg"    },
+  { desc: "500g stays as g",    qty: 500,  unit: "g",     expected: "500 g"   },
+  { desc: "2500g → 2.50 kg",    qty: 2500, unit: "g",     expected: "2.50 kg" },
+  { desc: "1 l",                qty: 1,    unit: "l",     expected: "1 l"     },
+  { desc: "1.5 l → 1.50 l",     qty: 1.5,  unit: "l",     expected: "1.50 l"  },
+  { desc: "unknown unit as-is", qty: 3,    unit: "pinch", expected: "3 pinch" },
+];
+
 describe("formatQuantity", () => {
-  it("formats 1000g as 1 kg", () => {
-    expect(formatQuantity(1000, "g")).toBe("1 kg");
-  });
-
-  it("formats 500g as 500 g", () => {
-    expect(formatQuantity(500, "g")).toBe("500 g");
-  });
-
-  it("formats 1.5 l as 1.50 l", () => {
-    expect(formatQuantity(1.5, "l")).toBe("1.50 l");
-  });
-
-  it("formats 1 l as 1 l", () => {
-    expect(formatQuantity(1, "l")).toBe("1 l");
-  });
-
-  it("formats unknown unit as-is", () => {
-    expect(formatQuantity(3, "pinch")).toBe("3 pinch");
-  });
-
-  it("formats 2500g as 2.50 kg", () => {
-    expect(formatQuantity(2500, "g")).toBe("2.50 kg");
-  });
+  formatCases.forEach((c) => it(c.desc, () => doTestFormat(c)));
 });
