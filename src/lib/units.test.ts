@@ -54,6 +54,8 @@ const formatCases: FormatCase[] = [
   { desc: "1 l",                qty: 1,    unit: "l",     expected: "1 l"     },
   { desc: "1.5 l → 1.50 l",     qty: 1.5,  unit: "l",     expected: "1.50 l"  },
   { desc: "unknown unit as-is", qty: 3,    unit: "pinch", expected: "3 pinch" },
+  { desc: "999g stays as g (just below 1 kg threshold)", qty: 999, unit: "g", expected: "999 g" },
+  { desc: "0.5 l falls through to generic (below factor-1 threshold)", qty: 0.5, unit: "l", expected: "0.50 l" },
 ];
 
 describe("formatQuantity", () => {

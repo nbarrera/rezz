@@ -27,20 +27,34 @@ const cat = (id: string, name: string): CatalogEntry => ({
 // doTest — the "how" lives here, once
 // ---------------------------------------------------------------------------
 
+type ExpectedItem = Partial<{ name: string; total_quantity: number; unit: string; is_bought: boolean }>;
+
 type Case = {
   desc: string;
   slots: MenuSlot[];
   ingredients: Ingredient[];
   catalog: CatalogEntry[];
   expectedLength: number;
-  expectedItems?: Array<Partial<{ name: string; total_quantity: number; unit: string; is_bought: boolean }>>;
+  expectedItems?: ExpectedItem[];
+  // When true, total_quantity is checked with toBeCloseTo (float-safe)
+  closeToItems?: string[];  // list of item names whose quantity needs closeTo
 };
 
-function doTest({ slots, ingredients, catalog, expectedLength, expectedItems }: Case) {
+function doTest({ slots, ingredients, catalog, expectedLength, expectedItems, closeToItems = [] }: Case) {
   const result = generateShoppingItems(slots, ingredients, catalog);
   expect(result).toHaveLength(expectedLength);
   expectedItems?.forEach((expected) => {
-    expect(result.find((r) => r.name === expected.name)).toMatchObject(expected);
+    const found = result.find(
+      (r) => r.name === expected.name && (expected.unit === undefined || r.unit === expected.unit)
+    );
+    if (expected.total_quantity !== undefined && closeToItems.includes(expected.name ?? "")) {
+      expect(found).toBeDefined();
+      expect(found!.total_quantity).toBeCloseTo(expected.total_quantity);
+      const { total_quantity: _, ...rest } = expected;
+      if (Object.keys(rest).length) expect(found).toMatchObject(rest);
+    } else {
+      expect(found).toMatchObject(expected);
+    }
   });
 }
 
@@ -129,7 +143,49 @@ const cases: Case[] = [
     ingredients: [ingredient("i1", "recipe-1", "cat-1", 100, "g")],
     catalog: [cat("cat-1", "flour")],
     expectedLength: 1,
-    expectedItems: [{ is_bought: false }],
+    expectedItems: [{ name: "flour", is_bought: false }],
+  },
+  {
+    desc: "same name, different unknown units → kept separate",
+    slots: [slot("recipe-1", 1), slot("recipe-2", 2)],
+    ingredients: [
+      ingredient("i1", "recipe-1", "cat-1", 2, "pinch"),
+      ingredient("i2", "recipe-2", "cat-1", 1, "tbsp"),
+    ],
+    catalog: [cat("cat-1", "salt")],
+    expectedLength: 2,
+    expectedItems: [
+      { name: "salt", total_quantity: 2, unit: "pinch" },
+      { name: "salt", total_quantity: 1, unit: "tbsp" },
+    ],
+  },
+  {
+    desc: "two convertible units to same base → normalized and summed",
+    slots: [slot("recipe-1")],
+    ingredients: [
+      ingredient("i1", "recipe-1", "cat-1", 200, "ml"),  // → 0.2 l
+      ingredient("i2", "recipe-1", "cat-1", 1,   "dl"),  // → 0.1 l
+    ],
+    catalog: [cat("cat-1", "milk")],
+    expectedLength: 1,
+    expectedItems: [{ name: "milk", total_quantity: 0.3, unit: "l" }],
+    closeToItems: ["milk"],
+  },
+  {
+    desc: "same recipe in two slots → ingredients counted once (Set dedup)",
+    slots: [slot("recipe-1", 1), slot("recipe-1", 2)],
+    ingredients: [ingredient("i1", "recipe-1", "cat-1", 200, "g")],
+    catalog: [cat("cat-1", "flour")],
+    expectedLength: 1,
+    expectedItems: [{ name: "flour", total_quantity: 200, unit: "g" }],
+  },
+  {
+    desc: "zero quantity ingredient → zero-quantity item produced",
+    slots: [slot("recipe-1")],
+    ingredients: [ingredient("i1", "recipe-1", "cat-1", 0, "g")],
+    catalog: [cat("cat-1", "flour")],
+    expectedLength: 1,
+    expectedItems: [{ name: "flour", total_quantity: 0, unit: "g" }],
   },
 ];
 

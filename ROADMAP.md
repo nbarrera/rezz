@@ -215,22 +215,22 @@ When user types an ingredient name in a recipe form:
 - [x] Normalization on input (trim + lowercase)
 
 ### 🔲 Weekly Menu
-- [ ] Weekly menu screen (7 days × lunch + dinner grid)
-- [ ] Assign recipe to slot
-- [ ] Clear a slot
-- [ ] Navigate between weeks
+- [x] Weekly menu screen (7 days × lunch + dinner grid)
+- [x] Assign recipe to slot
+- [x] Clear a slot
+- Navigate between weeks not needed, will do single week
 
 ### 🔲 Shopping List
-- [ ] Generate list button (triggers pipeline)
-- [ ] Shopping list screen
-- [ ] Toggle `is_bought` per item
-- [ ] "Mark all bought" bulk action
-- [ ] Show latest list, preserve history
+- [x] Generate list button (triggers pipeline)
+- [x] Shopping list screen
+- [x] Toggle `is_bought` per item
+- [x] "Mark all bought" bulk action
+- [x] Show latest list, preserve history
 
-### 🔲 PWA Polish
-- [ ] App manifest (name, icon, theme color)
-- [ ] Offline support (cache shell + Supabase responses)
-- [ ] "Add to home screen" prompt on Android
+### ✅ PWA Polish
+- [x] App manifest (name, icon, theme color)
+- [x] Offline support (cache shell + Supabase responses)
+- [x] "Add to home screen" prompt on Android
 
 ### 🔲 Future (not v1)
 - [ ] Household / multi-family support (see Owner Scope Pattern above)
